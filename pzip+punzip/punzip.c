@@ -6,7 +6,6 @@
 #include <assert.h>
 #include <limits.h>
 
-void compress_file(FILE *fp_in, FILE *fp_out);
 void uncompress_file(FILE *fp_in, FILE *fp_out);
 
 int main(int argc, char **argv) {
@@ -35,28 +34,14 @@ int main(int argc, char **argv) {
 			printf("Cannot open file %s \n", file_r); 
 			exit(1); 
 		} else {
-			printf("compressing file %s\n", file_r);
-			compress_file(fptr_r, fptr_w);
+			printf("uncompressing file %s\n", file_r);
+			uncompress_file(fptr_r, fptr_w);
 			fclose(fptr_r); 
 		}
 	}
 
 	fclose(fptr_w); 
 	return 0;
-}
-
-void compress_file(FILE *fp_in, FILE *fp_out) {
-	unsigned int count;
-	int ch = getc(fp_in);
-	int ch2 = ch;
-	while (ch2 != EOF) {
-		for (count = 0; ch2 == ch && count < UINT_MAX; count++) {
-				ch2 = getc(fp_in);
-			}
-		fwrite(&count, 1, 4, fp_out);
-		fwrite(&ch, 1, 1, fp_out);
-		ch = ch2;
-	}
 }
 
 void uncompress_file(FILE *fp_in, FILE *fp_out) {

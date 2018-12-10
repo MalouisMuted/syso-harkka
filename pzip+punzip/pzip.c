@@ -7,7 +7,6 @@
 #include <limits.h>
 
 void compress_file(FILE *fp_in, FILE *fp_out);
-void uncompress_file(FILE *fp_in, FILE *fp_out);
 
 int main(int argc, char **argv) {
 	if (argc < 3) {
@@ -56,19 +55,5 @@ void compress_file(FILE *fp_in, FILE *fp_out) {
 		fwrite(&count, 1, 4, fp_out);
 		fwrite(&ch, 1, 1, fp_out);
 		ch = ch2;
-	}
-}
-
-void uncompress_file(FILE *fp_in, FILE *fp_out) {
-	int count, ch, ch2;
-
-	for (count = 0; ch2 != EOF; count = 0) {
-		ch = getc(fp_in);   // grab first byte
-		ch2 = getc(fp_in);  // grab second byte
-		// write the bytes
-		do {
-			putc(ch2, fp_out);
-			count++;
-		} while (count < ch);
 	}
 }
