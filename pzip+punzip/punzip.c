@@ -9,7 +9,7 @@
 void uncompress_file(FILE *fp_in, FILE *fp_out);
 
 int main(int argc, char **argv) {
-	if (argc < 3) {
+	if (argc == 1) {
 		printf("Not enough arguments.\n");
 		exit(1);
 	}
@@ -45,6 +45,7 @@ int main(int argc, char **argv) {
 }
 
 void uncompress_file(FILE *fp_in, FILE *fp_out) {
+	/*
 	int count, ch, ch2;
 
 	for (count = 0; ch2 != EOF; count = 0) {
@@ -55,5 +56,30 @@ void uncompress_file(FILE *fp_in, FILE *fp_out) {
 			putc(ch2, fp_out);
 			count++;
 		} while (count < ch);
+	}
+	*/
+	/*
+
+	unsigned int count;
+	int ch, ch2;
+	while (fp_in != EOF) {
+		for (count = 0; ch2 == ch && count < UINT_MAX; count++) {
+				ch2 = getc(fp_in);
+			}
+		fwrite(&count, 1, 4, fp_out);
+		fwrite(&ch, 1, 1, fp_out);
+		ch = ch2;
+	}
+	*/
+	unsigned int count;
+	int ch;
+
+	while (fread(stdout, 1, 5, fp_in) != EOF) {
+		count = fread(&count, 1, 4, fp_in);
+		ch = fread(&ch, 1, 1, fp_in);
+
+		for (int i = 0; i < count; i++) {
+			putc(ch, fp_out);
+		}
 	}
 }

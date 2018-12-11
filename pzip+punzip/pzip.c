@@ -9,7 +9,7 @@
 void compress_file(FILE *fp_in, FILE *fp_out);
 
 int main(int argc, char **argv) {
-	if (argc < 3) {
+	if (argc == 1) {
 		printf("Not enough arguments.\n");
 		exit(1);
 	}
