@@ -11,27 +11,23 @@ Changelog:
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 #define MAX_BUFF 1024
 
-void read_and_print_file(char *filename)
-{
+void read_and_print_file(char *filename) {
 	FILE *file;
 	char buffer[MAX_BUFF];
 	
 	/* Open file in read mode */
 	file = fopen(filename, "r");
 	
-	if (!file)
-	{
+	if (!file) {
 		printf("Can not open file\n");
 		perror(filename);
 		exit(EXIT_FAILURE);
 	}
 	
-	while (fgets(buffer, sizeof(buffer), file))
-	{
+	while (fgets(buffer, sizeof(buffer), file)) {
 		printf("%s", buffer);
 	}
 	
