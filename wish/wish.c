@@ -36,32 +36,30 @@ void execute(char *command) {
 		count++;
 		strcpy(argument[count], token);
 		printf("Argument %d: %s\n", count, token);
-		
-		printf("Number of arguments: %d\n", count);
-		
-		/* Process built-in commands */
-		switch (argument[0]) {
-			case 'exit':
-				if (count == 1) {
-					exit(EXIT_SUCCESS);
-				} else {
-					printf("Invalid command\n");
-				}
-				break;
-			case 'cd':
-				if (count == 2) {
-					/* Change directory */
-				} else {
-					printf("Invalid command\n");
-				}
-				break;
-			case 'path':
-				/* Set path */
-				break;
-			default:
-				/* Execute program */
-				break;
+	}
+	
+	printf("Number of arguments: %d\n", count);
+	
+	/* Process built-in commands */
+	if (strcmp(argument[0], "exit") == 0) {
+		if (count == 1) {
+			exit(EXIT_SUCCESS);
+		} else {
+			printf("Invalid command\n");
 		}
+	}
+	else if (strcmp(argument[0], "cd") == 0) {
+		if (count == 2) {
+			/* Change directory */
+		} else {
+			printf("Invalid command\n");
+		}
+	}
+	else if (strcmp(argument[0], "path") == 0) {
+		/* Set path */
+	}
+	else {
+		/* Execute program */
 	}
 }
 
