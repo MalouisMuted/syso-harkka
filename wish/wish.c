@@ -18,18 +18,26 @@ Changelog:
 #define ARG_MAX 1024
 #define ARG_SIZE 1024
 
-void execute(char *command) {
+int match(const char *a, const char *b) {
+	/* Compare two strings */
+	if (strcmp(a, b) == 0) {
+		return 1;
+	}
+	
+	return 0;
+}
+
+void process_command(char *command) {
 	char *token;
 	const char *delim = " ";
 	char argument[ARG_MAX][ARG_SIZE];
-	int count;
+	int count = 1;
 	
 	printf("Command: %s\n", command);
 	
 	/* Parse command */
 	token = strtok(command, delim);
 	strcpy(argument[0], token);
-	count = 1;
 	printf("Argument %d: %s\n", count, token);
 	
 	while ((token = strtok(NULL, delim)) != NULL) {
@@ -41,21 +49,21 @@ void execute(char *command) {
 	printf("Number of arguments: %d\n", count);
 	
 	/* Process built-in commands */
-	if (strcmp(argument[0], "exit") == 0) {
+	if (match(argument[0], "exit")) {
 		if (count == 1) {
 			exit(EXIT_SUCCESS);
 		} else {
 			printf("Invalid command\n");
 		}
 	}
-	else if (strcmp(argument[0], "cd") == 0) {
+	else if (match(argument[0], "cd")) {
 		if (count == 2) {
 			/* Change directory */
 		} else {
 			printf("Invalid command\n");
 		}
 	}
-	else if (strcmp(argument[0], "path") == 0) {
+	else if (match(argument[0], "path")) {
 		/* Set path */
 	}
 	else {
@@ -75,7 +83,7 @@ void prompt() {
 		line[strcspn(line, "\r\n")] = 0;
 		/* Execute line if it is not empty */
 		if (strlen(line) > 0) {
-			execute(line);
+			process_command(line);
 		}
 		printf("wish> ");
 	}
@@ -103,7 +111,7 @@ void read_file(char *filename) {
 		line[strcspn(line, "\r\n")] = 0;
 		/* Execute line if it is not empty */
 		if (strlen(line) > 0) {
-			execute(line);
+			process_command(line);
 		}
 	}
 	
