@@ -1,12 +1,19 @@
 /*
 Author: Aleksi Kuznetsov
-C-program for run-length-encoding/decoding
+C-program for run-length-encoding/decoding multithreaded
 */
 
 #include <stdio.h>
-#include <stdlib.h> // For exit()
+#include <stdlib.h> // For exit() and malloc()
 #include <stdint.h> // For uint_32
+#include <limits.h> // For UINT_MAX
 #include <sys/sysinfo.h> // For get_nprocs()
+#include <sys/stat.h> // For fstat()
+#include <sys/mman.h> // For mmap()
+#include <fcntl.h>
+#include <unistd.h> // For read()
+#include <pthread.h> // For threads
+#include <math.h> // For round()
 
 void uncompress_file(FILE *fp_in);
 
