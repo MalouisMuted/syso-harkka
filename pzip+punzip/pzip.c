@@ -21,7 +21,7 @@ typedef struct buffered_write {
     struct buffered_write *next;
 } bw, *bw_ptr;
 
-void compress_file(struct buffered_write *ptr) {
+void compress_file(bw_ptr ptr) {
 	while (ptr != NULL) {
 		int count = ptr->repeat;
 		char character = ptr->character;
@@ -33,7 +33,7 @@ void compress_file(struct buffered_write *ptr) {
     }
 }
 
-void read_from_file(struct buffered_write *ptr, char * adr, int length) {
+void read_from_file(bw_ptr ptr, char * adr, int length) {
 	unsigned int count = 0;
 	char ch = adr[0];
 
@@ -46,6 +46,7 @@ void read_from_file(struct buffered_write *ptr, char * adr, int length) {
 			ptr->character = ch;
 		}
 		if (ch != ch2) {
+			ptr->next = malloc(sizeof(bw));
 			ptr = ptr->next;
 			count = 0;
 		}
@@ -93,8 +94,11 @@ int main(int argc, char **argv) {
 
 	for (int i = 0; i < num_of_threads; i++) {
 		// Create struct for buffering input
-		struct buffered_write *x_ptr, x;
-    	x_ptr = &x;
+		bw *x_ptr = NULL;
+		x_ptr = malloc(sizeof(bw));
+		if (x_ptr == NULL) {
+			exit(1);
+		}
     	buffers[i] = x_ptr;
     	// Write to buffer
 		read_from_file(x_ptr, addr + offset * i, offset);
