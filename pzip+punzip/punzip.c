@@ -4,26 +4,24 @@ C-program for run-length-encoding/decoding multithreaded
 */
 
 #include <stdio.h>
-#include <stdlib.h> // For exit() and malloc()
-#include <stdint.h> // For uint_32
-#include <limits.h> // For UINT_MAX
-#include <sys/sysinfo.h> // For get_nprocs()
-#include <sys/stat.h> // For fstat()
-#include <sys/mman.h> // For mmap()
-#include <fcntl.h>
-#include <unistd.h> // For read()
-#include <pthread.h> // For threads
-#include <math.h> // For round()
+#include <stdlib.h> // exit() and malloc()
+#include <stdint.h> // uint_32
+#include <limits.h> // UINT_MAX
+#include <sys/sysinfo.h> // get_nprocs()
+#include <sys/stat.h> // fstat()
+#include <sys/mman.h> // mmap()
+#include <fcntl.h> // open()
+#include <unistd.h> // read()
+#include <pthread.h> // threads
+#include <math.h> // round()
 
 void uncompress_file(FILE *fp_in);
 
 int main(int argc, char **argv) {
-	if (argc == 1) {
+	if (argc < 2) {
 		fprintf(stderr, "Wrong amount of arguments.\n");
 		exit(1);
 	}
-
-	int num_of_threads = get_nprocs();
 
 	FILE *fptr_r; 
 
