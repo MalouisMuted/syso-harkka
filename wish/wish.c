@@ -2,21 +2,25 @@
 CT30A3370_03.09.2018 Käyttöjärjestelmät ja systeemiohjelmointi
 Harjoitustyö
 Project 2: Unix Shell
-13.12.2018
+15.12.2018
 Miikka Mättölä
 ---
 Changelog:
 2018-12-13 Initial version (MM)
+2018-12-15 Path implementation (MM)
 */
 
+/* This is needed for getline() */
 #define _GNU_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define ARG_MAX 1024
-#define ARG_SIZE 1024
+#define PATH_MAX 128
+
+/* Define default path */
+char *path[PATH_MAX] = {"/bin"};
 
 int match(const char *a, const char *b) {
 	/* Compare two strings */
@@ -27,51 +31,106 @@ int match(const char *a, const char *b) {
 	return 0;
 }
 
-void process_command(char *command) {
-	char *token;
-	const char *delim = " ";
-	char argument[ARG_MAX][ARG_SIZE];
-	int count = 1;
+void set_path(char **list, int count) {
+	int i;
 	
-	printf("Command: %s\n", command);
-	
-	/* Parse command */
-	token = strtok(command, delim);
-	strcpy(argument[0], token);
-	printf("Argument %d: %s\n", count, token);
-	
-	while ((token = strtok(NULL, delim)) != NULL) {
-		count++;
-		strcpy(argument[count], token);
-		printf("Argument %d: %s\n", count, token);
+	/* Clear old path */
+	for (i = 0; i < PATH_MAX; i++) {
+		path[0] = NULL;
 	}
 	
-	printf("Number of arguments: %d\n", count);
+	if (count < 2) {
+		/* Empty path */
+		return;
+	}
+	
+	/* Set and reserve memory for new path */
+	for (i = 1; i < count; i++) {
+		path[i - 1] = malloc(strlen(list[i]) + 1);
+        strcpy(path[i - 1], list[i]);
+	}
+	
+	/* Print out new path */
+	printf("Path set:\n%s", path[0]);
+	for (i = 1; i < count - 1; i++) {
+		printf(":%s", path[i]);
+	}
+	printf("\n");
+}
+
+int parse_string(char* string, char* delim, char ***ret) {
+    char **list;
+    char *token;
+    int i = 0;
+	
+	/* Reserve memory for list */
+	list = (char**) malloc(sizeof(char*) * strlen(string));
+	if (!list)
+	{
+		printf("Unable to allocate memory!\n");
+		exit(EXIT_FAILURE);
+	}
+	
+	printf("String: [%s]\n", string);
+	
+	/* Parse string */
+	while ((token = strtok(string, delim)) != NULL) {
+		list[i] = malloc(strlen(token) + 1);
+		strcpy(list[i], token);
+		printf("Part %d: %s\n", i, list[i]);
+		i++;
+		string = NULL;
+    }
+	
+	printf("Number of parts: %d\n", i);
+	
+	list = realloc(list, sizeof(char*) * i);
+	*ret = list;
+	
+    return i;
+}
+
+void process_command(char *command) {
+	char	**arg_list;
+	int		arg_count;
+	char	*cmd;
+	int		i;
+	
+	arg_count = parse_string(command, " ", &arg_list);
 	
 	/* Process built-in commands */
-	if (match(argument[0], "exit")) {
-		if (count == 1) {
+	cmd = strdup(arg_list[0]);
+	
+	if (match(cmd, "exit")) {
+		if (arg_count == 1) {
 			exit(EXIT_SUCCESS);
 		} else {
 			printf("Invalid command\n");
 		}
 	}
-	else if (match(argument[0], "cd")) {
-		if (count == 2) {
+	else if (match(cmd, "cd")) {
+		if (arg_count == 2) {
 			/* Change directory */
 		} else {
 			printf("Invalid command\n");
 		}
 	}
-	else if (match(argument[0], "path")) {
+	else if (match(cmd, "path")) {
 		/* Set path */
+		set_path(arg_list, arg_count);
 	}
 	else {
 		/* Execute program */
 	}
+	
+	/* Free memory */
+	for (i = 0; i < arg_count; i++) {
+		free(arg_list[i]);
+	}
+	free(arg_list);
 }
 
-void prompt() {
+void prompt(void) {
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t ret;
@@ -120,7 +179,6 @@ void read_file(char *filename) {
 }
 
 int main(int argc, char *argv[]) {
-	
 	if (argc < 2) {
 		/* Interactive mode */
 		prompt();
