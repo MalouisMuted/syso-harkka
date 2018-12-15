@@ -4,18 +4,19 @@ C-program for run-length-encoding/decoding multithreaded
 */
 
 #include <stdio.h>
-#include <stdlib.h> // For exit() and malloc()
-#include <stdint.h> // For uint_32
-#include <limits.h> // For UINT_MAX
-#include <sys/sysinfo.h> // For get_nprocs()
-#include <sys/stat.h> // For fstat()
-#include <sys/mman.h> // For mmap()
-#include <fcntl.h>
-#include <unistd.h> // For read()
-#include <pthread.h> // For threads
-#include <math.h> // For round()
+#include <stdlib.h> // exit() and malloc()
+#include <stdint.h> // uint_32
+#include <limits.h> // UINT_MAX
+#include <sys/sysinfo.h> // get_nprocs()
+#include <sys/stat.h> // fstat()
+#include <sys/mman.h> // mmap()
+#include <fcntl.h> // open()
+#include <unistd.h> // read()
+#include <pthread.h> // threads
+#include <math.h> // round()
 
 typedef struct buffered_write {
+	// Struct to store a character and how many times it repeats
     int repeat;
     char character;
     struct buffered_write *next;
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 
-	// Get threads
+	// Get threads, init file stats and addresses
 	int num_of_threads = get_nprocs();
 	struct stat buffer;
 	int fd;
@@ -80,7 +81,7 @@ int main(int argc, char **argv) {
     if (fstat(fd, &buffer) == -1) {
         exit(1);
     }
-    // Memory map content
+    // Memory map the file contents
     addr = mmap(NULL, buffer.st_size, PROT_READ,
                        MAP_PRIVATE, fd, 0);
     if (addr == MAP_FAILED) {
@@ -89,7 +90,7 @@ int main(int argc, char **argv) {
 
     // Buffers
     bw_ptr buffers[num_of_threads];
-    // Offset
+    // Offset so we can divide the workload to several threads
 	int offset = round(buffer.st_size / num_of_threads);
 
 	for (int i = 0; i < num_of_threads; i++) {
@@ -99,33 +100,15 @@ int main(int argc, char **argv) {
 		if (x_ptr == NULL) {
 			exit(1);
 		}
+		// Here we add to struct pointer array so we can iterate it later
     	buffers[i] = x_ptr;
     	// Write to buffer
 		read_from_file(x_ptr, addr + offset * i, offset);
 	}
 
 	for (int i = 0; i < num_of_threads; i++) {
-		// Compress from buffers
+		// Compress from all buffers
 		compress_file(buffers[i]);
 	}
-
-
-
-
-
-
-/*
-	// For loop for every argument that is file
-	for (int i = 1; i < argc; i++) {
-		fptr_r = fopen(argv[i], "r"); 
-		if (fptr_r == NULL) { 
-			fprintf(stderr, "Cannot open file %s \n", argv[i]); 
-			exit(1); 
-		} else {
-			compress_file(fptr_r);
-			fclose(fptr_r); 
-		}
-	}
-	*/
 	return 0;
 }
