@@ -8,6 +8,7 @@ Miikka Mättölä
 Changelog:
 2018-12-13 Initial version (MM)
 2018-12-15 Path implementation (MM)
+2018-12-15 Execute processes (MM)
 */
 
 /* This is needed for getline() */
@@ -16,6 +17,9 @@ Changelog:
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define PATH_MAX 128
 
@@ -29,6 +33,61 @@ int match(const char *a, const char *b) {
 	}
 	
 	return 0;
+}
+
+char *locate(char *bin) {
+	int i = 0;
+	char *current;
+	
+	while (path[i]) {
+		/* Reserve memory for path */
+		current = malloc(strlen(path[i]) + 1 + strlen(bin) + 1);
+		if (!current) {
+			perror("Unable to allocate memory");
+			exit(EXIT_FAILURE);
+		}
+		strcpy(current, path[i]);
+		strcat(current, "/");
+		strcat(current, bin);
+		
+		if (access(current, X_OK) == 0) {
+			/* Found binary */
+			return current;
+		}
+		i++;
+	}
+	
+	/* File not found */
+	return NULL;
+}
+
+void execute(char *filepath, char **arg) {
+	pid_t cpid;
+	int w, e;
+	
+	cpid = fork();
+	
+	if (cpid == -1) {
+		/* Error with fork() */
+		perror("Unable to create process");
+		exit(EXIT_FAILURE);
+	} else if (cpid == 0) {
+		/* Child process */
+		e = execv(filepath, arg);
+		if (e == -1) {
+			/* Error creating process */
+			perror("Execute error");
+			exit(EXIT_FAILURE);
+		}
+	} else {
+		/* Parent process */
+		w = wait(NULL);
+		if (w == -1) {
+			/* Error with child process */
+			perror("Wait error");
+			exit(EXIT_FAILURE);
+		}
+	}
 }
 
 void set_path(char **list, int count) {
@@ -67,7 +126,7 @@ int parse_string(char* string, char* delim, char ***ret) {
 	list = (char**) malloc(sizeof(char*) * strlen(string));
 	if (!list)
 	{
-		printf("Unable to allocate memory!\n");
+		perror("Unable to allocate memory");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -95,7 +154,9 @@ void process_command(char *command) {
 	int		arg_count;
 	char	*cmd;
 	int		i;
+	char	*filepath;
 	
+	/* Parse command string and return number of arguments */
 	arg_count = parse_string(command, " ", &arg_list);
 	
 	/* Process built-in commands */
@@ -120,7 +181,14 @@ void process_command(char *command) {
 		set_path(arg_list, arg_count);
 	}
 	else {
-		/* Execute program */
+		/* Locate program binary and execute*/
+		filepath = locate(cmd);
+		if (filepath) {
+			/* Execute program */
+			execute(filepath, arg_list);
+		} else {
+			printf("Command not found\n");
+		}
 	}
 	
 	/* Free memory */
