@@ -1,8 +1,7 @@
 Käyttöjärjestelmät ja systeemiohjelmointi: Project 4: Parallel Zip
 
-Parallel zipping works - or kind of. There are some memory leaks and the output is cut from middle.
-I think the problem has something to do with how threads are created, since the cut appears at unkown location.
-The idea was to take single input file and share it according to the number of threads (int num_of_threads = get_nprocs();) to chinks of memory.
+Parallel zipping works - or kind of. There are some memory leaks and the output is not reliable.
+The idea was to take single input file and share it according to the number of threads (int num_of_threads = get_nprocs();) to chunks of memory.
 After that I memorymapped (mmap()) it and made a buffer struct for each thread to write on.
 Struct would have the character and number of times to be repeated. The structs would make up a linked list for iteration.
 Every thread would begin their work on a different memory area.

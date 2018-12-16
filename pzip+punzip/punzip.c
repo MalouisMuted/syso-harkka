@@ -1,26 +1,18 @@
 /*
 Author: Aleksi Kuznetsov
-C-program for run-length-encoding/decoding multithreaded
+C-program for run-length-encoding/decoding
 */
 
-#include <stdio.h>
-#include <stdlib.h> // exit() and malloc()
-#include <stdint.h> // uint_32
-#include <limits.h> // UINT_MAX
-#include <sys/sysinfo.h> // get_nprocs()
-#include <sys/stat.h> // fstat()
-#include <sys/mman.h> // mmap()
-#include <fcntl.h> // open()
-#include <unistd.h> // read()
-#include <pthread.h> // threads
-#include <math.h> // round()
+#include <stdio.h> // stdout
+#include <stdlib.h> // exit()
+#include <stdint.h> // uint32_t
 
 void uncompress_file(FILE *fp_in);
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
-		fprintf(stderr, "Wrong amount of arguments.\n");
-		exit(1);
+		fprintf(stderr, "Not enough arguments.\n");
+		exit(EXIT_FAILURE);
 	}
 
 	FILE *fptr_r; 
@@ -30,13 +22,13 @@ int main(int argc, char **argv) {
 		fptr_r = fopen(argv[i], "rb"); 
 		if (fptr_r == NULL) { 
 			fprintf(stderr, "Cannot open file %s \n", argv[i]); 
-			exit(1); 
+			exit(EXIT_FAILURE); 
 		} else {
 			uncompress_file(fptr_r);
 			fclose(fptr_r); 
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void uncompress_file(FILE *fp_in) {
