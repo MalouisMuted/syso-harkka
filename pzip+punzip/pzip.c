@@ -15,12 +15,19 @@ C-program for run-length-encoding/decoding multithreaded
 #include <pthread.h> // threads
 #include <math.h> // round()
 
+// Struct to store a character and how many times it repeats
 typedef struct buffered_write {
-	// Struct to store a character and how many times it repeats
     int repeat;
     char character;
     struct buffered_write *next;
 } bw, *bw_ptr;
+
+// Struct for arg to threads
+typedef struct _myarg_t {
+	bw_ptr ptr;
+	char * adr;
+	int length;
+} myarg_t;
 
 void compress_file(bw_ptr ptr) {
 	while (ptr != NULL) {
@@ -32,6 +39,16 @@ void compress_file(bw_ptr ptr) {
 
         ptr = ptr->next;
     }
+}
+
+void freeList(bw_ptr root) {
+	bw_ptr tmp;
+
+	while (root != NULL) {
+		tmp = root;
+		root = root->next;
+		free(tmp);
+	}
 }
 
 void read_from_file(bw_ptr ptr, char * adr, int length) {
@@ -58,6 +75,12 @@ void read_from_file(bw_ptr ptr, char * adr, int length) {
     	ptr = ptr->next;
 		count = 1;
     }
+}
+
+void *mythread(void *arg) {
+	myarg_t *m = (myarg_t *)arg;
+	read_from_file(m->ptr, m->adr, m->length);
+	return NULL;
 }
 
 int main(int argc, char **argv) {
@@ -92,6 +115,8 @@ int main(int argc, char **argv) {
     bw_ptr buffers[num_of_threads];
     // Offset so we can divide the workload to several threads
 	int offset = round(buffer.st_size / num_of_threads);
+	// Thread container
+	pthread_t thread_container[num_of_threads];
 
 	for (int i = 0; i < num_of_threads; i++) {
 		// Create struct for buffering input
@@ -100,15 +125,35 @@ int main(int argc, char **argv) {
 		if (x_ptr == NULL) {
 			exit(1);
 		}
-		// Here we add to struct pointer array so we can iterate it later
+		// Here we add to struct pointer array so we can iterate it later when writing output
     	buffers[i] = x_ptr;
-    	// Write to buffer
-		read_from_file(x_ptr, addr + offset * i, offset);
+
+    	// Write to the buffer and add to thread_container
+    	pthread_t p;
+		myarg_t args;
+		args.ptr = x_ptr;
+		args.adr = addr + offset * i;
+		args.length = offset;
+		thread_container[i] = p;
+		pthread_create(&p, NULL, mythread, &args);
 	}
 
+	// Join threads
 	for (int i = 0; i < num_of_threads; i++) {
-		// Compress from all buffers
+		pthread_join(thread_container[i], NULL);
+	}
+
+	// Collect the data and write to stdout
+	for (int i = 0; i < num_of_threads; i++) {
 		compress_file(buffers[i]);
 	}
+
+	// Free memory from linked list and mmap under
+	for (int i = 0; i < num_of_threads; i++) {
+		freeList(buffers[i]);
+	}
+
+	munmap(addr, buffer.st_size);
+
 	return 0;
 }
