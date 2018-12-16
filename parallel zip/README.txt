@@ -6,6 +6,7 @@ After that I memorymapped (mmap()) it and made a buffer struct for each thread t
 Struct would have the character and number of times to be repeated. The structs would make up a linked list for iteration.
 Every thread would begin their work on a different memory area.
 After all the threads are done and joined, I would iterate all the buffers and write to stdout.
+You will find the single thread version in the subfolder.
 
 Sources:
 http://man7.org/linux/man-pages/man2/mmap.2.html
