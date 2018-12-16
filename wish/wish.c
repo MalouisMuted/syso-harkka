@@ -102,15 +102,6 @@ void execute(char *filepath, char **arg, char *redirect) {
 	pid_t cpid;
 	int w, e, fd, d;
 	
-	/* Debug */
-	int i = 0;
-	printf("filepath: [%s]\n", filepath);
-	while (arg[i] != NULL) {
-		printf("arg: [%d][%s]\n", i, arg[i]);
-		i++;
-	}
-	printf("redirect: [%s]\n", redirect);
-	
 	cpid = fork();
 	
 	if (cpid == -1) {
@@ -200,18 +191,13 @@ int parse_string(char* string, char* delim, char ***ret) {
 		exit(EXIT_FAILURE);
 	}
 	
-	printf("String: [%s]\n", string);
-	
 	/* Parse string */
 	while ((token = strtok(string, delim)) != NULL) {
 		list[i] = malloc(strlen(token) + 1);
 		strcpy(list[i], token);
-		printf("Part %d: %s\n", i, list[i]);
 		i++;
 		string = NULL;
 	}
-	
-	printf("Number of parts: %d\n", i);
 	
 	list = realloc(list, sizeof(char*) * (i + 1));
 	/* Add null pointer to end of list */
