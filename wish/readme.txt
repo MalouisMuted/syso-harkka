@@ -7,12 +7,19 @@ Run:
 ./wish			interactive mode
 ./wish filename		batch mode
 
-wish shell supports the following built-in commands: cd, path, exit.
+wish shell can be used to run programs with variable amount of arguments.
+When using the batch mode, each line in a file is used as a command.
+
+The following built-in commands are supported: cd, path, exit.
 
 command		arguments		feature				description
 cd		[1]			Change directories		This takes exactly one argument: path.
 path		[0-n]			Set path variable		Path variable is used to locate program binaries.
 exit		[0]			Exit shell			Self-explanatory. Does not take any arguments.
+
+Examples:
+cd ..
+path /bin /usr/bin
 
 Output redirection is supported using the ">" character followed by a filename.
 Example: cat file.txt > other.txt
