@@ -52,23 +52,31 @@ void freeList(bw_ptr root) {
 }
 
 void read_from_file(bw_ptr ptr, char * adr, int length) {
-	unsigned int count = 0;
+	unsigned int count = 1;
 	char ch = adr[0];
+	char ch_last = adr[0];
 
-	for (int i = 0; i < length; i++) {
-        char ch2 = adr[i];
-        if (ch == ch2) {
+	ptr->repeat = count;
+	ptr->character = ch;
+
+	for (int i = 1; i < length; i++) {
+        char ch = adr[i];
+        if (ch == ch_last) {
         	count++;
 
         	ptr->repeat = count;
-			ptr->character = ch;
-		}
-		if (ch != ch2) {
+		} else if (ch != ch_last) {
+			count = 1;
 			ptr->next = malloc(sizeof(bw));
+			if (ptr->next == NULL) {
+				exit(1);
+			}
 			ptr = ptr->next;
-			count = 0;
+			ptr->repeat = count;
+			ptr->character = adr[i];
+			ptr->next = NULL;
 		}
-		ch = ch2;
+		ch_last = ch;
     }
 
     if (count == UINT_MAX) {
@@ -117,6 +125,7 @@ int main(int argc, char **argv) {
 	int offset = round(buffer.st_size / num_of_threads);
 	// Thread container
 	pthread_t thread_container[num_of_threads];
+	myarg_t args[num_of_threads];
 
 	for (int i = 0; i < num_of_threads; i++) {
 		// Create struct for buffering input
@@ -129,13 +138,10 @@ int main(int argc, char **argv) {
     	buffers[i] = x_ptr;
 
     	// Write to the buffer and add to thread_container
-    	pthread_t p;
-		myarg_t args;
-		args.ptr = x_ptr;
-		args.adr = addr + offset * i;
-		args.length = offset;
-		thread_container[i] = p;
-		pthread_create(&p, NULL, mythread, &args);
+		args[i].ptr = x_ptr;
+		args[i].adr = addr + offset * i;
+		args[i].length = offset;
+		pthread_create(thread_container+i, NULL, mythread, args+i);
 	}
 
 	// Join threads
