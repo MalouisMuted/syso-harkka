@@ -1,18 +1,18 @@
-wish shell readme
+﻿wish shell readme
 
 Build:
 make wish (or make all)
 
 Run:
-./wish				interactive mode
+./wish			interactive mode
 ./wish filename		batch mode
 
 wish shell supports the following built-in commands: cd, path, exit.
 
-command		arguments		feature					description
-cd			[1]				Change directories		This takes exactly one argument: path.
+command		arguments		feature				description
+cd		[1]			Change directories		This takes exactly one argument: path.
 path		[0-n]			Set path variable		Path variable is used to locate program binaries.
-exit		[0]				Exit shell				Self-explanatory. Does not take any arguments.
+exit		[0]			Exit shell			Self-explanatory. Does not take any arguments.
 
 Output redirection is supported using the ">" character followed by a filename.
 Example: cat file.txt > other.txt
