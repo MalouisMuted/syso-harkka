@@ -4,7 +4,7 @@ pzip : pzip.o
 pzip.o : pzip.c
 	gcc -g -c pzip.c -Wall -ansi -std=c99
 punzip : punzip.o
-	gcc -o punzip punzip.o -lm  -pthread
+	gcc -o punzip punzip.o
 punzip.o : punzip.c
 	gcc -g -c punzip.c -Wall -ansi -std=c99
 clean :

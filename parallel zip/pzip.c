@@ -3,7 +3,7 @@ Author: Aleksi Kuznetsov
 C-program for run-length-encoding/decoding multithreaded
 */
 
-#include <stdio.h>
+#include <stdio.h> // stdout
 #include <stdlib.h> // exit() and malloc()
 #include <stdint.h> // uint_32
 #include <limits.h> // UINT_MAX
