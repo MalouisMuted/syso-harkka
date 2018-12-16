@@ -129,6 +129,12 @@ void execute(char *filepath, char **arg, char *redirect) {
 				perror("Unable to open file");
 				exit(EXIT_FAILURE);
 			}
+			d = dup2(STDOUT_FILENO, STDERR_FILENO);
+			if (d == -1) {
+				/* Error with dup2() */
+				perror("Unable to duplicate");
+				exit(EXIT_FAILURE);
+			}
 			d = dup2(fd, STDOUT_FILENO);
 			if (d == -1) {
 				/* Error with dup2() */
