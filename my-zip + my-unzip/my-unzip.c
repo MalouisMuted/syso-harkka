@@ -3,18 +3,16 @@ Author: Aleksi Kuznetsov
 C-program for run-length-encoding/decoding
 */
 
-#include <stdio.h> 
-#include <stdlib.h> // For exit()
-#include <ctype.h>
-#include <limits.h>
-#include <stdint.h>
+#include <stdio.h> // stdout
+#include <stdlib.h> // exit()
+#include <stdint.h> // uint32_t
 
 void uncompress_file(FILE *fp_in);
 
 int main(int argc, char **argv) {
-	if (argc == 1) {
+	if (argc < 2) {
 		fprintf(stderr, "Not enough arguments.\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	FILE *fptr_r; 
@@ -24,13 +22,13 @@ int main(int argc, char **argv) {
 		fptr_r = fopen(argv[i], "rb"); 
 		if (fptr_r == NULL) { 
 			fprintf(stderr, "Cannot open file %s \n", argv[i]); 
-			exit(1); 
+			exit(EXIT_FAILURE); 
 		} else {
 			uncompress_file(fptr_r);
 			fclose(fptr_r); 
 		}
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 void uncompress_file(FILE *fp_in) {

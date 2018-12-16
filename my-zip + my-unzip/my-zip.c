@@ -3,17 +3,17 @@ Author: Aleksi Kuznetsov
 C-program for run-length-encoding/decoding
 */
 
-#include <stdio.h> 
-#include <stdlib.h> // For exit()
-#include <ctype.h>
-#include <limits.h>
+#include <stdio.h> // stdout
+#include <stdlib.h> // exit()
+#include <limits.h> // UINT_MAX
+#include <stdint.h> // uint32_t
 
 void compress_file(FILE *fp_in);
 
 int main(int argc, char **argv) {
-	if (argc == 1) {
+	if (argc < 2) {
 		fprintf(stderr, "Not enough arguments.\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 
 	FILE *fptr_r;
@@ -23,17 +23,18 @@ int main(int argc, char **argv) {
 		fptr_r = fopen(argv[i], "r"); 
 		if (fptr_r == NULL) { 
 			fprintf(stderr, "Cannot open file %s \n", argv[i]); 
-			exit(1); 
+			exit(EXIT_FAILURE); 
 		} else {
 			compress_file(fptr_r);
 			fclose(fptr_r); 
 		}
 	}
-	return 0;
+
+	return EXIT_SUCCESS;
 }
 
 void compress_file(FILE *fp_in) {
-	unsigned int count;
+	uint32_t count;
 	int ch = getc(fp_in);
 	int ch2 = ch;
 	while (ch2 != EOF) {
